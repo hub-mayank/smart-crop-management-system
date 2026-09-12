@@ -96,6 +96,16 @@ SESSION_SECRET=any-long-random-text
 PORT=3000
 ```
 
+Make sure the connection string ends with a database name before the `?`,
+for example `...mongodb.net/smart-crop?retryWrites=true`. Without it the data
+goes into a database called `test`.
+
+A good way to create the session secret:
+
+```bash
+node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+```
+
 `.env` is listed in `.gitignore`, so the password is never pushed to GitHub.
 
 **4. (Optional) Add demo data**
@@ -150,8 +160,8 @@ POST to their own path instead of the PUT and DELETE methods.
 2. On [Render](https://render.com), create a **New Web Service** and connect
    the repository. `render.yaml` already sets the build command
    (`npm install`) and the start command (`npm start`).
-3. Add the environment variables **MONGO_URI** and **SESSION_SECRET** in the
-   Render dashboard.
+3. Add **MONGO_URI** in the Render dashboard. **SESSION_SECRET** does not
+   need to be typed in, Render generates it from `render.yaml`.
 4. In MongoDB Atlas, allow access from anywhere (`0.0.0.0/0`) so that Render
    can reach the database.
 
