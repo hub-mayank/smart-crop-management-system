@@ -1,0 +1,238 @@
+<%- include("../partials/header") %>
+
+<%
+  // how far the crop has come between sowing and harvest
+  const totalDays = (crop.expectedHarvestDate - crop.sowingDate) / (1000 * 60 * 60 * 24);
+  const daysGone = (new Date() - crop.sowingDate) / (1000 * 60 * 60 * 24);
+  let progress = totalDays > 0 ? Math.round((daysGone / totalDays) * 100) : 0;
+  if (progress < 0) progress = 0;
+  if (progress > 100) progress = 100;
+
+  const today = new Date().toISOString().slice(0, 10);
+
+  const activityIcons = {
+    "Irrigation": "i-droplet",
+    "Fertilizer": "i-flask",
+    "Pest Control": "i-bug"
+  };
+%>
+
+<!-- only shown when printing -->
+<div class="hidden print:block">
+  <h1 class="text-2xl font-bold">Crop report &mdash; <%= crop.name %></h1>
+  <p class="text-sm">
+    Farmer: <%= currentUser.name %> &middot;
+    Printed on <%= new Date().toLocaleDateString("en-IN") %>
+  </p>
+  <hr class="my-4" />
+</div>
+
+<a href="/crops" class="mb-4 inline-flex items-center gap-1.5 text-sm font-medium muted hover:underline print:hidden">
+  <svg class="icon h-4 w-4"><use href="#i-arrow-left" /></svg>
+  Back to my crops
+</a>
+
+<div class="mb-6 flex flex-wrap items-start justify-between gap-4">
+  <div>
+    <div class="flex flex-wrap items-center gap-3">
+      <h1 class="page-title"><%= crop.name %></h1>
+      <%- include("../partials/status-badge", { status: crop.status }) %>
+    </div>
+    <p class="mt-1 muted">
+      <%= crop.landArea %> acre &middot; sown on <%= crop.sowingDate.toLocaleDateString("en-IN") %>
+    </p>
+  </div>
+
+  <div class="flex flex-wrap gap-2 print:hidden">
+    <button type="button" onclick="window.print()" class="btn-ghost">
+      <svg class="icon"><use href="#i-printer" /></svg>
+      Print report
+    </button>
+    <a href="/crops/<%= crop._id %>/edit" class="btn-ghost">
+      <svg class="icon"><use href="#i-pencil" /></svg>
+      Edit crop
+    </a>
+  </div>
+</div>
+
+<div class="grid gap-6 lg:grid-cols-3">
+
+  <div class="space-y-6 lg:col-span-2">
+
+    <!-- Season progress -->
+    <section class="card p-6">
+      <div class="flex items-center justify-between text-sm">
+        <span class="font-medium">Season progress</span>
+        <span class="muted"><%= progress %>%</span>
+      </div>
+      <div class="mt-2 h-3 w-full overflow-hidden rounded-full bg-leaf-100 dark:bg-night-600">
+        <div class="h-full rounded-full bg-gradient-to-r from-leaf-500 to-leaf-400 transition-all duration-700" style="width: <%= progress %>%"></div>
+      </div>
+      <div class="mt-2 flex justify-between text-xs muted">
+        <span>Sown <%= crop.sowingDate.toLocaleDateString("en-IN") %></span>
+        <span>Harvest <%= crop.expectedHarvestDate.toLocaleDateString("en-IN") %></span>
+      </div>
+
+      <% if (crop.notes) { %>
+        <p class="mt-5 rounded-xl bg-leaf-50 px-4 py-3 text-sm text-leaf-700 dark:bg-night-700 dark:text-night-100">
+          <%= crop.notes %>
+        </p>
+      <% } %>
+    </section>
+
+    <!-- Log a new activity -->
+    <section class="card p-6 print:hidden">
+      <h2 class="section-title">Log an activity</h2>
+      <p class="text-sm muted">Record what you did on the field today.</p>
+
+      <form action="/crops/<%= crop._id %>/activities" method="POST" class="mt-5 grid gap-4 sm:grid-cols-2">
+
+        <div>
+          <label for="type" class="label">Activity *</label>
+          <select id="type" name="type" required class="input">
+            <% activityTypes.forEach(function (item) { %>
+              <option value="<%= item %>"><%= item %></option>
+            <% }); %>
+          </select>
+        </div>
+
+        <div>
+          <label for="date" class="label">Date *</label>
+          <input type="date" id="date" name="date" required value="<%= today %>" class="input" />
+        </div>
+
+        <div>
+          <label for="cost" class="label">Cost (&#8377;)</label>
+          <input type="number" id="cost" name="cost" min="0" step="1" placeholder="0" class="input" />
+        </div>
+
+        <div>
+          <label for="details" class="label">Details</label>
+          <input type="text" id="details" name="details" placeholder="e.g. Urea, 2 bags" class="input" />
+        </div>
+
+        <div class="sm:col-span-2">
+          <button type="submit" class="btn-primary btn-lg">Save activity</button>
+        </div>
+
+      </form>
+    </section>
+
+    <!-- Activity history -->
+    <section class="card p-6">
+      <h2 class="section-title">Activity history</h2>
+
+      <% if (activities.length === 0) { %>
+        <div class="empty mt-5">
+          <svg class="icon icon-xl mx-auto text-leaf-400 dark:text-night-400"><use href="#i-clipboard" /></svg>
+          <p class="mt-3 font-medium">No activity recorded yet</p>
+          <p class="mt-1 text-sm muted">Use the form above to log your first irrigation, fertilizer or spray.</p>
+        </div>
+      <% } else { %>
+        <ul class="mt-4 row-list">
+          <% activities.forEach(function (activity) { %>
+            <li class="flex items-start justify-between gap-4 py-3">
+              <div class="flex items-center gap-3">
+                <span class="grid h-9 w-9 place-items-center rounded-lg bg-leaf-100 text-leaf-700 dark:bg-night-700 dark:text-leaf-400">
+                  <svg class="icon"><use href="#<%= activityIcons[activity.type] %>" /></svg>
+                </span>
+                <div>
+                  <p class="font-medium"><%= activity.type %></p>
+                  <p class="text-sm muted">
+                    <%= activity.date.toLocaleDateString("en-IN") %><% if (activity.details) { %> &middot; <%= activity.details %><% } %>
+                  </p>
+                </div>
+              </div>
+              <div class="flex items-center gap-3">
+                <% if (activity.cost > 0) { %>
+                  <span class="text-sm font-semibold">&#8377;<%= activity.cost %></span>
+                <% } %>
+                <form action="/crops/<%= crop._id %>/activities/<%= activity._id %>/delete" method="POST"
+                  onsubmit="return confirm('Remove this activity?');">
+                  <button type="submit" title="Remove this activity"
+                    class="rounded-lg p-1.5 text-red-600 transition hover:bg-red-50 dark:hover:bg-red-950">
+                    <svg class="icon h-4 w-4"><use href="#i-trash" /></svg>
+                  </button>
+                </form>
+              </div>
+            </li>
+          <% }); %>
+        </ul>
+      <% } %>
+    </section>
+
+  </div>
+
+  <!-- Yield / cost estimate -->
+  <aside class="lg:col-span-1">
+    <section class="card sticky top-24 p-6 print:static">
+      <h2 class="flex items-center gap-2 section-title">
+        <svg class="icon"><use href="#i-wallet" /></svg>
+        Estimate
+      </h2>
+      <p class="text-sm muted">Based on the numbers saved for this crop.</p>
+
+      <dl class="mt-5 space-y-3 text-sm">
+
+        <div class="flex justify-between">
+          <dt class="muted">Expected yield</dt>
+          <dd class="font-medium"><%= crop.expectedYield %> quintal</dd>
+        </div>
+
+        <div class="flex justify-between">
+          <dt class="muted">Price per quintal</dt>
+          <dd class="font-medium">&#8377;<%= crop.pricePerQuintal %></dd>
+        </div>
+
+        <div class="flex justify-between border-t border-leaf-100 pt-3 dark:border-night-600">
+          <dt class="muted">Expected income</dt>
+          <dd class="font-semibold text-leaf-700 dark:text-leaf-300">&#8377;<%= estimate.estimatedIncome %></dd>
+        </div>
+
+        <div class="flex justify-between">
+          <dt class="muted">Seed &amp; setup cost</dt>
+          <dd class="font-medium">&#8377;<%= crop.seedCost %></dd>
+        </div>
+
+        <div class="flex justify-between">
+          <dt class="muted">Activity cost</dt>
+          <dd class="font-medium">&#8377;<%= estimate.activityCost %></dd>
+        </div>
+
+        <div class="flex justify-between border-t border-leaf-100 pt-3 dark:border-night-600">
+          <dt class="muted">Total cost</dt>
+          <dd class="font-semibold">&#8377;<%= estimate.totalCost %></dd>
+        </div>
+
+      </dl>
+
+      <div class="mt-5 rounded-xl p-4 <%= estimate.estimatedProfit >= 0
+            ? 'bg-leaf-100 dark:bg-leaf-900/50'
+            : 'bg-red-50 dark:bg-red-950/50' %>">
+        <p class="flex items-center gap-2 text-sm <%= estimate.estimatedProfit >= 0
+              ? 'text-leaf-700 dark:text-leaf-300'
+              : 'text-red-700 dark:text-red-300' %>">
+          <svg class="icon h-4 w-4"><use href="#i-trending" /></svg>
+          <%= estimate.estimatedProfit >= 0 ? "Estimated profit" : "Estimated loss" %>
+        </p>
+        <p class="mt-1 text-3xl font-bold <%= estimate.estimatedProfit >= 0
+              ? 'text-leaf-800 dark:text-leaf-200'
+              : 'text-red-800 dark:text-red-200' %>">
+          &#8377;<%= Math.abs(estimate.estimatedProfit) %>
+        </p>
+      </div>
+
+      <% if (crop.expectedYield === 0 || crop.pricePerQuintal === 0) { %>
+        <p class="mt-4 text-xs muted print:hidden">
+          Add the expected yield and market price in
+          <a href="/crops/<%= crop._id %>/edit" class="underline underline-offset-2">edit crop</a>
+          to get a complete estimate.
+        </p>
+      <% } %>
+
+    </section>
+  </aside>
+
+</div>
+
+<%- include("../partials/footer") %>

@@ -1,0 +1,9 @@
+<% if (flash) { %>
+  <div class="mb-6 flex items-center gap-3 rounded-xl border px-4 py-3 text-sm shadow-card print:hidden
+    <%= flash.type === 'success'
+          ? 'border-leaf-300 bg-leaf-100 text-leaf-800 dark:border-leaf-700 dark:bg-leaf-900/50 dark:text-leaf-100'
+          : 'border-red-300 bg-red-50 text-red-800 dark:border-red-800 dark:bg-red-950/60 dark:text-red-200' %>">
+    <svg class="icon"><use href="<%= flash.type === 'success' ? '#i-check' : '#i-alert' %>" /></svg>
+    <span><%= flash.message %></span>
+  </div>
+<% } %>

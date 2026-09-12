@@ -1,0 +1,62 @@
+<%- include("partials/header") %>
+
+<div class="mx-auto max-w-md">
+
+  <div class="card p-8">
+    <div class="mb-6 grid h-12 w-12 place-items-center rounded-xl bg-leaf-100 text-leaf-700 dark:bg-night-700 dark:text-leaf-400">
+      <svg class="icon icon-lg"><use href="#i-sprout" /></svg>
+    </div>
+
+    <h1 class="text-2xl font-bold tracking-tight">Create account</h1>
+    <p class="mt-1 text-sm muted">Start keeping a digital record of your farm.</p>
+
+    <% if (error) { %>
+      <p class="mt-5 flex items-center gap-2 rounded-xl border border-red-300 bg-red-50 px-4 py-2.5 text-sm text-red-800 dark:border-red-800 dark:bg-red-950/60 dark:text-red-200">
+        <svg class="icon"><use href="#i-alert" /></svg>
+        <%= error %>
+      </p>
+    <% } %>
+
+    <form action="/register" method="POST" class="mt-6 space-y-4">
+
+      <div>
+        <label for="name" class="label">Full name</label>
+        <input type="text" id="name" name="name" required value="<%= form.name || '' %>" class="input" />
+      </div>
+
+      <div>
+        <label for="email" class="label">Email</label>
+        <input type="email" id="email" name="email" required value="<%= form.email || '' %>" class="input" />
+      </div>
+
+      <div>
+        <label for="village" class="label">Village / city <span class="font-normal muted">(optional)</span></label>
+        <input type="text" id="village" name="village" value="<%= form.village || '' %>" class="input" />
+      </div>
+
+      <div class="grid gap-4 sm:grid-cols-2">
+        <div>
+          <label for="password" class="label">Password</label>
+          <input type="password" id="password" name="password" required minlength="6" class="input" />
+        </div>
+        <div>
+          <label for="confirmPassword" class="label">Confirm password</label>
+          <input type="password" id="confirmPassword" name="confirmPassword" required minlength="6" class="input" />
+        </div>
+      </div>
+
+      <p class="text-xs muted">Use at least 6 characters.</p>
+
+      <button type="submit" class="btn-primary btn-lg w-full">Create account</button>
+
+    </form>
+  </div>
+
+  <p class="mt-5 text-center text-sm muted">
+    Already registered?
+    <a href="/login" class="font-semibold text-leaf-700 underline underline-offset-2 dark:text-leaf-400">Login here</a>
+  </p>
+
+</div>
+
+<%- include("partials/footer") %>

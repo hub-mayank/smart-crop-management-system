@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %> | Smart Crop Management</title>
+
+  <!-- set the theme before the page is drawn, so there is no white flash -->
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem("theme");
+        var prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+        if (saved === "dark" || (!saved && prefersDark)) {
+          document.documentElement.classList.add("dark");
+        }
+      } catch (e) {
+        // localStorage blocked, stay on the light theme
+      }
+    })();
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            leaf: {
+              50: "#f3faf2", 100: "#e2f2df", 200: "#c4e4bf", 300: "#98cf90",
+              400: "#66b25c", 500: "#429438", 600: "#2f7729", 700: "#275e23",
+              800: "#224b1f", 900: "#1c3d1a"
+            },
+            night: {
+              900: "#0e1510", 800: "#151e17", 700: "#1d2a1f",
+              600: "#2c3d2e", 400: "#8ba587", 100: "#e6f0e4"
+            },
+            soil: { 100: "#f7f2e8", 500: "#a9865b" }
+          },
+          fontFamily: {
+            sans: ["Inter", "Segoe UI", "system-ui", "sans-serif"]
+          },
+          boxShadow: {
+            card: "0 1px 2px rgba(28, 61, 26, .05), 0 4px 16px -8px rgba(28, 61, 26, .12)",
+            lift: "0 4px 12px rgba(28, 61, 26, .08), 0 16px 32px -12px rgba(28, 61, 26, .22)"
+          }
+        }
+      }
+    };
+  </script>
+
+  <!-- classes reused across the pages, written once instead of on every element -->
+  <style type="text/tailwindcss">
+    @layer components {
+
+      .card {
+        @apply rounded-2xl border border-leaf-200 bg-white shadow-card transition
+               dark:border-night-600 dark:bg-night-800;
+      }
+      .card-link {
+        @apply card hover:-translate-y-1 hover:border-leaf-400 hover:shadow-lift
+               dark:hover:border-leaf-500;
+      }
+
+      .btn {
+        @apply inline-flex items-center justify-center gap-2 rounded-xl px-5 py-2.5
+               text-sm font-semibold transition active:translate-y-px
+               focus:outline-none focus-visible:ring-4 focus-visible:ring-leaf-300
+               dark:focus-visible:ring-leaf-800;
+      }
+      .btn-primary { @apply btn bg-leaf-600 text-white shadow-sm hover:bg-leaf-700 hover:shadow-md; }
+      .btn-ghost {
+        @apply btn border border-leaf-300 bg-white text-leaf-700 hover:bg-leaf-100
+               dark:border-night-600 dark:bg-night-700 dark:text-night-100 dark:hover:bg-night-600;
+      }
+      .btn-danger { @apply btn bg-red-600 text-white hover:bg-red-700; }
+      .btn-lg { @apply px-6 py-3 text-base; }
+
+      .input {
+        @apply w-full rounded-xl border border-leaf-200 bg-leaf-50 px-4 py-2.5
+               text-leaf-900 outline-none transition
+               focus:border-leaf-500 focus:bg-white focus:ring-4 focus:ring-leaf-200
+               dark:border-night-600 dark:bg-night-700 dark:text-night-100
+               dark:focus:border-leaf-500 dark:focus:ring-leaf-900;
+      }
+      .label { @apply mb-1.5 block text-sm font-medium; }
+
+      .nav-link {
+        @apply inline-flex items-center gap-2 whitespace-nowrap rounded-lg px-2 py-2
+               text-xs font-medium text-leaf-700 transition hover:bg-leaf-100
+               dark:text-night-100 dark:hover:bg-night-700 sm:px-3 sm:text-sm;
+      }
+      .nav-cta {
+        @apply inline-flex items-center gap-2 whitespace-nowrap rounded-lg bg-leaf-600 px-2 py-2
+               text-xs font-semibold text-white shadow-sm transition hover:bg-leaf-700
+               sm:px-3 sm:text-sm;
+      }
+
+      .badge {
+        @apply inline-flex items-center gap-1.5 rounded-full px-2.5 py-1
+               text-xs font-semibold ring-1 ring-inset;
+      }
+
+      .page-title { @apply text-3xl font-bold tracking-tight sm:text-4xl; }
+      .section-title { @apply text-lg font-semibold tracking-tight; }
+      .muted { @apply text-leaf-600 dark:text-night-400; }
+
+      .empty {
+        @apply rounded-2xl border border-dashed border-leaf-300 bg-leaf-50 px-6 py-10 text-center
+               dark:border-night-600 dark:bg-night-700;
+      }
+
+      .row-list { @apply divide-y divide-leaf-100 dark:divide-night-600; }
+    }
+  </style>
+
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+
+<body class="min-h-screen bg-leaf-50 font-sans text-leaf-900 antialiased dark:bg-night-900 dark:text-night-100">
+
+  <%- include("icons") %>
+
+  <header class="sticky top-0 z-20 border-b border-leaf-200 bg-white/85 backdrop-blur dark:border-night-600 dark:bg-night-900/85 print:hidden">
+    <nav class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
+
+      <a href="/" class="flex items-center gap-2.5">
+        <span class="grid h-9 w-9 place-items-center rounded-xl bg-leaf-600 text-white shadow-sm">
+          <svg class="icon"><use href="#i-sprout" /></svg>
+        </span>
+        <span class="hidden text-lg font-bold tracking-tight sm:block">Smart Crop Management</span>
+      </a>
+
+      <div class="flex items-center gap-1 sm:gap-2">
+
+        <% if (currentUser) { %>
+          <a href="/dashboard" class="nav-link">
+            <svg class="icon"><use href="#i-grid" /></svg>
+            <span class="hidden sm:inline">Dashboard</span>
+          </a>
+          <a href="/crops" class="nav-link">
+            <svg class="icon"><use href="#i-crop" /></svg>
+            <span class="hidden sm:inline">My crops</span>
+          </a>
+          <a href="/crops/new" class="nav-cta">
+            <svg class="icon"><use href="#i-plus" /></svg>
+            <span class="hidden sm:inline">Add crop</span>
+          </a>
+        <% } else { %>
+          <a href="/login" class="nav-link">Login</a>
+          <a href="/register" class="nav-cta">Register</a>
+        <% } %>
+
+        <button type="button" id="themeToggle" title="Switch between light and dark"
+          class="nav-link border-l border-leaf-200 pl-2 dark:border-night-600">
+          <svg class="icon dark:hidden"><use href="#i-moon" /></svg>
+          <svg class="icon hidden dark:block"><use href="#i-sun" /></svg>
+        </button>
+
+        <% if (currentUser) { %>
+          <form action="/logout" method="POST">
+            <button type="submit" class="nav-link">
+              <svg class="icon"><use href="#i-logout" /></svg>
+              <span class="hidden sm:inline">Logout</span>
+            </button>
+          </form>
+        <% } %>
+
+      </div>
+    </nav>
+  </header>
+
+  <main class="mx-auto w-full max-w-6xl px-4 py-8">
+    <%- include("flash") %>

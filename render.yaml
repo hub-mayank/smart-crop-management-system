@@ -1,0 +1,15 @@
+# Render blueprint. sync:false means the value is typed into the
+# Render dashboard instead of being committed here.
+
+services:
+  - type: web
+    name: smart-crop-management-system
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: MONGO_URI
+        sync: false
+      - key: SESSION_SECRET
+        sync: false

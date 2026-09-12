@@ -1,0 +1,135 @@
+<%- include("../partials/header") %>
+
+<%
+  // this form is used for both adding and editing
+  const isEdit = Boolean(crop._id);
+
+  // date inputs need yyyy-mm-dd
+  function dateValue(value) {
+    if (!value) return "";
+    const date = new Date(value);
+    if (isNaN(date)) return "";
+    return date.toISOString().slice(0, 10);
+  }
+%>
+
+<div class="mx-auto max-w-2xl">
+
+  <a href="<%= isEdit ? '/crops/' + crop._id : '/crops' %>" class="mb-4 inline-flex items-center gap-1.5 text-sm font-medium muted hover:underline">
+    <svg class="icon h-4 w-4"><use href="#i-arrow-left" /></svg>
+    <%= isEdit ? "Back to crop" : "Back to my crops" %>
+  </a>
+
+  <h1 class="page-title"><%= isEdit ? "Edit crop" : "Add a new crop" %></h1>
+  <p class="mt-1 muted">Fields marked with * are required.</p>
+
+  <% if (error) { %>
+    <p class="mt-5 flex items-center gap-2 rounded-xl border border-red-300 bg-red-50 px-4 py-2.5 text-sm text-red-800 dark:border-red-800 dark:bg-red-950/60 dark:text-red-200">
+      <svg class="icon"><use href="#i-alert" /></svg>
+      <%= error %>
+    </p>
+  <% } %>
+
+  <form action="<%= action %>" method="POST" class="mt-6 space-y-6">
+
+    <!-- Crop details -->
+    <section class="card p-6">
+      <h2 class="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide muted">
+        <svg class="icon h-4 w-4"><use href="#i-crop" /></svg>
+        Crop details
+      </h2>
+
+      <div class="mt-5 grid gap-4 sm:grid-cols-2">
+
+        <div class="sm:col-span-2">
+          <label for="name" class="label">Crop name *</label>
+          <input type="text" id="name" name="name" required value="<%= crop.name || '' %>" placeholder="e.g. Wheat" class="input" />
+        </div>
+
+        <div>
+          <label for="landArea" class="label">Land area (acre) *</label>
+          <input type="number" id="landArea" name="landArea" required min="0" step="0.1" value="<%= crop.landArea || '' %>" class="input" />
+        </div>
+
+        <div>
+          <label for="status" class="label">Status *</label>
+          <select id="status" name="status" class="input">
+            <% statuses.forEach(function (item) { %>
+              <option value="<%= item %>" <%= crop.status === item ? "selected" : "" %>><%= item %></option>
+            <% }); %>
+          </select>
+        </div>
+
+        <div>
+          <label for="sowingDate" class="label">Sowing date *</label>
+          <input type="date" id="sowingDate" name="sowingDate" required value="<%= dateValue(crop.sowingDate) %>" class="input" />
+        </div>
+
+        <div>
+          <label for="expectedHarvestDate" class="label">Expected harvest date *</label>
+          <input type="date" id="expectedHarvestDate" name="expectedHarvestDate" required value="<%= dateValue(crop.expectedHarvestDate) %>" class="input" />
+        </div>
+
+        <div class="sm:col-span-2">
+          <label for="notes" class="label">Notes</label>
+          <textarea id="notes" name="notes" rows="3" placeholder="Seed variety, soil condition, anything worth remembering" class="input"><%= crop.notes || "" %></textarea>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Numbers used by the estimate calculator -->
+    <section class="card p-6">
+      <h2 class="flex items-center gap-2 text-sm font-semibold uppercase tracking-wide muted">
+        <svg class="icon h-4 w-4"><use href="#i-trending" /></svg>
+        Yield &amp; cost estimate
+      </h2>
+      <p class="mt-2 text-sm muted">Optional. These numbers are used to estimate the profit of this crop.</p>
+
+      <div class="mt-5 grid gap-4 sm:grid-cols-3">
+
+        <div>
+          <label for="expectedYield" class="label">Expected yield (quintal)</label>
+          <input type="number" id="expectedYield" name="expectedYield" min="0" step="0.1" value="<%= crop.expectedYield || '' %>" class="input" />
+        </div>
+
+        <div>
+          <label for="pricePerQuintal" class="label">Price per quintal (&#8377;)</label>
+          <input type="number" id="pricePerQuintal" name="pricePerQuintal" min="0" step="1" value="<%= crop.pricePerQuintal || '' %>" class="input" />
+        </div>
+
+        <div>
+          <label for="seedCost" class="label">Seed &amp; setup cost (&#8377;)</label>
+          <input type="number" id="seedCost" name="seedCost" min="0" step="1" value="<%= crop.seedCost || '' %>" class="input" />
+        </div>
+
+      </div>
+    </section>
+
+    <div class="flex flex-wrap items-center gap-3">
+      <button type="submit" class="btn-primary btn-lg">
+        <%= isEdit ? "Save changes" : "Add crop" %>
+      </button>
+      <a href="<%= isEdit ? '/crops/' + crop._id : '/crops' %>" class="btn-ghost btn-lg">Cancel</a>
+    </div>
+
+  </form>
+
+  <% if (isEdit) { %>
+    <form action="/crops/<%= crop._id %>/delete" method="POST"
+      class="mt-8 rounded-2xl border border-red-200 bg-red-50 p-5 dark:border-red-900 dark:bg-red-950/40"
+      onsubmit="return confirm('Delete this crop and all of its activity records?');">
+      <h2 class="flex items-center gap-2 font-semibold text-red-800 dark:text-red-200">
+        <svg class="icon"><use href="#i-trash" /></svg>
+        Delete this crop
+      </h2>
+      <p class="mt-1 text-sm text-red-700 dark:text-red-300">
+        The crop and every activity logged against it will be removed permanently.
+      </p>
+      <button type="submit" class="btn-danger mt-4">Delete crop</button>
+    </form>
+  <% } %>
+
+</div>
+
+<%- include("../partials/footer") %>

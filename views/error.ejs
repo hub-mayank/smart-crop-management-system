@@ -1,0 +1,15 @@
+<%- include("partials/header") %>
+
+<div class="mx-auto max-w-md card p-8 text-center">
+  <div class="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-full bg-red-100 text-red-600 dark:bg-red-950 dark:text-red-300">
+    <svg class="icon icon-lg"><use href="#i-alert" /></svg>
+  </div>
+  <h1 class="text-xl font-semibold"><%= title %></h1>
+  <p class="mt-2 text-sm muted"><%= message %></p>
+  <a href="/" class="btn-primary mt-6">
+    <svg class="icon"><use href="#i-arrow-left" /></svg>
+    Back to home
+  </a>
+</div>
+
+<%- include("partials/footer") %>

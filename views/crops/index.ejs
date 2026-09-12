@@ -1,0 +1,114 @@
+<%- include("../partials/header") %>
+
+<div class="mb-6 flex flex-wrap items-end justify-between gap-4">
+  <div>
+    <h1 class="page-title">My crops</h1>
+    <p class="mt-1 muted"><%= crops.length %> crop<%= crops.length === 1 ? "" : "s" %> found.</p>
+  </div>
+  <a href="/crops/new" class="btn-primary">
+    <svg class="icon"><use href="#i-plus" /></svg>
+    Add crop
+  </a>
+</div>
+
+<!-- Search and filter -->
+<form action="/crops" method="GET" class="mb-6 card p-4">
+  <div class="flex flex-wrap items-end gap-3">
+
+    <div class="min-w-[200px] flex-1">
+      <label for="search" class="label">Search by crop name</label>
+      <div class="relative">
+        <span class="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 muted">
+          <svg class="icon"><use href="#i-search" /></svg>
+        </span>
+        <input type="text" id="search" name="search" value="<%= search %>" placeholder="e.g. Wheat" class="input pl-11" />
+      </div>
+    </div>
+
+    <div class="min-w-[160px]">
+      <label for="status" class="label">Status</label>
+      <select id="status" name="status" class="input">
+        <option value="">All statuses</option>
+        <% statuses.forEach(function (item) { %>
+          <option value="<%= item %>" <%= selectedStatus === item ? "selected" : "" %>><%= item %></option>
+        <% }); %>
+      </select>
+    </div>
+
+    <button type="submit" class="btn-primary">Apply</button>
+
+    <% if (search || selectedStatus) { %>
+      <a href="/crops" class="btn-ghost">Clear</a>
+    <% } %>
+
+  </div>
+</form>
+
+<!-- Crop list -->
+<% if (crops.length === 0) { %>
+
+  <div class="empty py-14">
+    <svg class="icon icon-xl mx-auto text-leaf-400 dark:text-night-400"><use href="#i-empty-field" /></svg>
+
+    <% if (search || selectedStatus) { %>
+      <h2 class="mt-4 text-lg font-semibold">No crop matched your search</h2>
+      <p class="mx-auto mt-1 max-w-sm text-sm muted">
+        Nothing was found
+        <% if (search) { %> for &ldquo;<%= search %>&rdquo;<% } %>
+        <% if (selectedStatus) { %> with the status <%= selectedStatus %><% } %>.
+        Try a different name or status.
+      </p>
+      <a href="/crops" class="btn-ghost mt-6">Clear the filters</a>
+    <% } else { %>
+      <h2 class="mt-4 text-lg font-semibold">Your field is still empty</h2>
+      <p class="mx-auto mt-1 max-w-sm text-sm muted">
+        Add your first crop to start keeping a record of what is growing on your land.
+      </p>
+      <a href="/crops/new" class="btn-primary mt-6">
+        <svg class="icon"><use href="#i-plus" /></svg>
+        Add my first crop
+      </a>
+    <% } %>
+  </div>
+
+<% } else { %>
+
+  <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    <% crops.forEach(function (crop) { %>
+      <a href="/crops/<%= crop._id %>" class="card-link group p-5">
+
+        <div class="flex items-start justify-between gap-3">
+          <h2 class="text-lg font-semibold transition group-hover:text-leaf-700 dark:group-hover:text-leaf-400">
+            <%= crop.name %>
+          </h2>
+          <%- include("../partials/status-badge", { status: crop.status }) %>
+        </div>
+
+        <dl class="mt-4 space-y-2 text-sm">
+          <div class="flex items-center justify-between">
+            <dt class="flex items-center gap-2 muted">
+              <svg class="icon h-4 w-4"><use href="#i-ruler" /></svg> Land area
+            </dt>
+            <dd class="font-medium"><%= crop.landArea %> acre</dd>
+          </div>
+          <div class="flex items-center justify-between">
+            <dt class="flex items-center gap-2 muted">
+              <svg class="icon h-4 w-4"><use href="#i-sprout" /></svg> Sown on
+            </dt>
+            <dd class="font-medium"><%= crop.sowingDate.toLocaleDateString("en-IN") %></dd>
+          </div>
+          <div class="flex items-center justify-between">
+            <dt class="flex items-center gap-2 muted">
+              <svg class="icon h-4 w-4"><use href="#i-calendar" /></svg> Harvest by
+            </dt>
+            <dd class="font-medium"><%= crop.expectedHarvestDate.toLocaleDateString("en-IN") %></dd>
+          </div>
+        </dl>
+
+      </a>
+    <% }); %>
+  </div>
+
+<% } %>
+
+<%- include("../partials/footer") %>

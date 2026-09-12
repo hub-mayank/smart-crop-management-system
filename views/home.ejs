@@ -1,0 +1,81 @@
+<%- include("partials/header") %>
+
+<!-- Hero -->
+<section class="relative overflow-hidden rounded-3xl border border-leaf-200 bg-gradient-to-br from-leaf-100 via-white to-leaf-50 px-6 py-12 shadow-card dark:border-night-600 dark:from-night-800 dark:via-night-900 dark:to-night-800 sm:px-10 sm:py-16">
+
+  <div class="pointer-events-none absolute -right-16 -top-16 h-64 w-64 rounded-full bg-leaf-300/30 blur-3xl dark:bg-leaf-700/20"></div>
+  <div class="pointer-events-none absolute -bottom-24 -left-10 h-72 w-72 rounded-full bg-leaf-400/20 blur-3xl dark:bg-leaf-800/20"></div>
+
+  <div class="relative grid items-center gap-10 md:grid-cols-2">
+
+    <div>
+      <p class="mb-4 inline-flex items-center gap-2 rounded-full bg-leaf-600 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white">
+        <svg class="icon h-4 w-4"><use href="#i-sprout" /></svg>
+        For farmers
+      </p>
+
+      <h1 class="text-4xl font-extrabold leading-[1.1] tracking-tight sm:text-5xl">
+        Manage every crop
+        <span class="text-leaf-600 dark:text-leaf-400">from sowing to harvest.</span>
+      </h1>
+
+      <p class="mt-5 max-w-md text-lg muted">
+        Keep a record of your crops, log irrigation, fertilizer and pest control,
+        and see which harvest is coming up next &mdash; all in one place.
+      </p>
+
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a href="/register" class="btn-primary btn-lg">
+          Create free account
+          <svg class="icon"><use href="#i-plus" /></svg>
+        </a>
+        <a href="/login" class="btn-ghost btn-lg">I already have an account</a>
+      </div>
+    </div>
+
+    <div class="grid gap-4 sm:grid-cols-2">
+      <%
+        const features = [
+          { icon: "i-crop",     title: "Crop records",  text: "Name, land area, sowing date and expected harvest date." },
+          { icon: "i-droplet",   title: "Activity log",  text: "Irrigation, fertilizer and pest control with the cost of each." },
+          { icon: "i-grid",      title: "Dashboard",     text: "Crops grouped by status and harvests due in 30 days." },
+          { icon: "i-trending",  title: "Cost estimate", text: "Expected income, total spending and profit per crop." }
+        ];
+      %>
+      <% features.forEach(function (feature) { %>
+        <div class="card p-5 hover:-translate-y-1 hover:shadow-lift">
+          <div class="mb-3 grid h-11 w-11 place-items-center rounded-xl bg-leaf-100 text-leaf-700 dark:bg-night-700 dark:text-leaf-400">
+            <svg class="icon icon-lg"><use href="#<%= feature.icon %>" /></svg>
+          </div>
+          <h3 class="font-semibold"><%= feature.title %></h3>
+          <p class="mt-1 text-sm muted"><%= feature.text %></p>
+        </div>
+      <% }); %>
+    </div>
+
+  </div>
+</section>
+
+<!-- How it works -->
+<section class="mt-10">
+  <h2 class="section-title text-center">Three steps to get started</h2>
+
+  <div class="mt-6 grid gap-4 sm:grid-cols-3">
+    <%
+      const steps = [
+        { no: "1", title: "Create your account", text: "Register once with your name, email and village." },
+        { no: "2", title: "Add your crops",      text: "Enter what you sowed, on how much land, and when you expect to harvest." },
+        { no: "3", title: "Log as you work",     text: "Record every irrigation, fertilizer and spray with its cost." }
+      ];
+    %>
+    <% steps.forEach(function (step) { %>
+      <div class="card p-6">
+        <span class="grid h-9 w-9 place-items-center rounded-full bg-leaf-600 font-bold text-white"><%= step.no %></span>
+        <h3 class="mt-4 font-semibold"><%= step.title %></h3>
+        <p class="mt-1 text-sm muted"><%= step.text %></p>
+      </div>
+    <% }); %>
+  </div>
+</section>
+
+<%- include("partials/footer") %>
