@@ -13,6 +13,14 @@ const dashboardRoutes = require("./routes/dashboard");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Stop early with a clear message instead of failing on every request
+const missingEnv = ["MONGO_URI", "SESSION_SECRET"].filter((name) => !process.env[name]);
+if (missingEnv.length > 0) {
+  console.error("Missing environment variable(s): " + missingEnv.join(", "));
+  console.error("Set them in .env locally, or in the dashboard when deploying.");
+  process.exit(1);
+}
+
 // ---------- Database ----------
 mongoose
   .connect(process.env.MONGO_URI)
@@ -25,6 +33,10 @@ mongoose
 // ---------- App setup ----------
 app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
+
+// defaults, so a view can always read these even if a request fails early
+app.locals.currentUser = null;
+app.locals.flash = null;
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
@@ -68,6 +80,12 @@ app.use((err, req, res, next) => {
   res.status(500).render("error", {
     title: "Something went wrong",
     message: "An unexpected error occurred. Please try again."
+  }, (renderErr, html) => {
+    if (renderErr) {
+      console.error(renderErr);
+      return res.type("text").send("Something went wrong. Please try again.");
+    }
+    res.send(html);
   });
 });
 

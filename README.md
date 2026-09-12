@@ -157,11 +157,14 @@ POST to their own path instead of the PUT and DELETE methods.
 ## Deploying on Render
 
 1. Push the project to GitHub (`.env` stays out of the repository).
-2. On [Render](https://render.com), create a **New Web Service** and connect
-   the repository. `render.yaml` already sets the build command
-   (`npm install`) and the start command (`npm start`).
-3. Add **MONGO_URI** in the Render dashboard. **SESSION_SECRET** does not
-   need to be typed in, Render generates it from `render.yaml`.
+2. On [Render](https://render.com), choose **New > Blueprint** and connect the
+   repository, so that `render.yaml` is used. It sets the build command
+   (`npm install`), the start command (`npm start`) and generates
+   SESSION_SECRET. A plain **New > Web Service** ignores `render.yaml`, and
+   then both variables below have to be added by hand.
+3. Add **MONGO_URI** in the Render dashboard, including the database name.
+   Add **SESSION_SECRET** too if the service was not created from the
+   blueprint.
 4. In MongoDB Atlas, allow access from anywhere (`0.0.0.0/0`) so that Render
    can reach the database.
 
